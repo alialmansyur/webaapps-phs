@@ -58,9 +58,14 @@ class SurveyController extends Controller
             return response()->json(['message' => 'Belum ada kuesioner aktif'], 404);
         }
 
-        $items = YearlyQuestionItem::with(['question', 'question.options' => function($q) {
+        $items = YearlyQuestionItem::with(['question' => function($q) {
+            $q->where('is_active', true);
+        }, 'question.options' => function($q) {
             $q->orderBy('sort_order');
         }])
+        ->whereHas('question', function($q) {
+            $q->where('is_active', true);
+        })
         ->where('yearly_questionnaire_id', $questionnaire->id)
         ->orderBy('sort_order')
         ->get();

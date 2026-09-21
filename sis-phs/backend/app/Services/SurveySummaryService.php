@@ -63,6 +63,10 @@ class SurveySummaryService
 
             $val = strtoupper(trim((string) ($ans->option_value ?: $ans->answer_text)));
 
+            if (!in_array($val, ['Y', 'N'], true)) {
+                continue;
+            }
+
             if (in_array($val, ['Y', 'N'], true)) {
                 $indicators[$ans->indicator]['is_applicable'] = 1;
             }
@@ -145,6 +149,18 @@ class SurveySummaryService
             }
 
             DB::commit();
+            
+            // Invalidate Caches
+            try {
+                \App\Helpers\CacheBooster::refreshVersion("dashboard_kader_{$survey->surveyor_user_id}");
+                if ($survey->puskesmas_id) {
+                    \App\Helpers\CacheBooster::refreshVersion("dashboard_puskesmas_{$survey->puskesmas_id}");
+                }
+                \App\Helpers\CacheBooster::refreshVersion("dashboard_dinkes");
+                \App\Helpers\CacheBooster::refreshVersion("reports");
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('Failed to refresh cache version: ' . $e->getMessage());
+            }
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;

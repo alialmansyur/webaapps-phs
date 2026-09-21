@@ -75,7 +75,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen bg-white">
       {/* Left Side: Background & Floating Text */}
-      <div className="relative hidden w-1/2 items-center justify-center lg:flex bg-slate-900">
+      <div className="relative hidden lg:w-2/3 items-center justify-center lg:flex bg-slate-900">
         <div className="absolute inset-0">
           <img
             src="/backdrop.png"
@@ -105,7 +105,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side: Login Form */}
-      <div className="flex w-full items-center justify-center lg:w-1/2 p-8 sm:p-12 lg:p-16 bg-slate-50 lg:bg-white">
+      <div className="flex w-full items-center justify-center lg:w-1/3 p-8 sm:p-12 lg:p-16 bg-slate-50 lg:bg-white">
         <div className="w-full max-w-md rounded-[2rem] bg-white p-8 sm:p-10 lg:p-0 lg:rounded-none lg:bg-transparent shadow-xl lg:shadow-none">
           <div className="mb-8 text-center lg:text-left">
             <div className="lg:hidden mb-5 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-500 text-white shadow-md">
@@ -117,7 +117,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-5" autoComplete="off">
             <div className="space-y-4">
               <div>
                 <label className="mb-2 block text-sm font-bold text-slate-700">Username</label>
@@ -131,6 +131,7 @@ export default function LoginPage() {
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Masukkan username"
                     className="w-full rounded-2xl bg-slate-50 lg:bg-slate-100 py-4 pl-12 pr-4 font-medium text-slate-900 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500 border border-slate-200 lg:border-none focus:border-teal-500"
+                    autoComplete="off"
                     required
                   />
                 </div>
@@ -148,6 +149,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Masukkan password"
                     className="w-full rounded-2xl bg-slate-50 lg:bg-slate-100 py-4 pl-12 pr-12 font-medium text-slate-900 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500 border border-slate-200 lg:border-none focus:border-teal-500"
+                    autoComplete="new-password"
                     required
                   />
                   <button

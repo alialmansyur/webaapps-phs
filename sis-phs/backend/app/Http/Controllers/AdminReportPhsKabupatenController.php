@@ -280,66 +280,75 @@ class AdminReportPhsKabupatenController extends Controller
 
     public function index(Request $request)
     {
-        $perPage = (int) $request->query('perPage', 10);
-        $page = (int) $request->query('page', 1);
-        $year = $request->query('year');
+        $user = $request->user();
+        $qs = md5(json_encode($request->query()));
+        $cacheVersion = \App\Helpers\CacheBooster::getVersion("reports");
+        $cacheKey = "admin_report_phs_kabupaten_index_{$user?->id}_{$qs}_v{$cacheVersion}";
 
-        $query = $this->buildReportQuery($request);
-        
-        $search = $request->query('search');
-        if ($search) {
-            $query->having('districtName', 'like', "%{$search}%")
-                  ->orHaving('puskesmasName', 'like', "%{$search}%")
-                  ->orHaving('villageName', 'like', "%{$search}%");
-        }
+        $responseData = \App\Helpers\CacheBooster::remember($cacheKey, 60 * 60, function () use ($request) {
+            $perPage = (int) $request->query('perPage', 10);
+            $page = (int) $request->query('page', 1);
+            $year = $request->query('year');
 
-        $query->orderBy('districtName')->orderBy('puskesmasName')->orderBy('villageName');
-
-        if ($perPage === 999) {
-            $data = $query->get();
-            $total = $data->count();
+            $query = $this->buildReportQuery($request);
             
-            $formattedData = $data->map(function ($item) use ($year) {
+            $search = $request->query('search');
+            if ($search) {
+                $query->having('districtName', 'like', "%{$search}%")
+                      ->orHaving('puskesmasName', 'like', "%{$search}%")
+                      ->orHaving('villageName', 'like', "%{$search}%");
+            }
+
+            $query->orderBy('districtName')->orderBy('puskesmasName')->orderBy('villageName');
+
+            if ($perPage === 999) {
+                $data = $query->get();
+                $total = $data->count();
+                
+                $formattedData = $data->map(function ($item) use ($year) {
+                    return $this->formatRow($item, $year);
+                });
+
+                $formattedData = $formattedData->sortByDesc('healthyPct')->values();
+
+                return [
+                    'data' => $formattedData,
+                    'meta' => [
+                        'page' => 1,
+                        'perPage' => $total,
+                        'total' => $total,
+                        'totalPages' => 1,
+                        'from' => 1,
+                        'to' => $total
+                    ]
+                ];
+            }
+
+            $wrappedQuery = DB::table(DB::raw("({$query->toSql()}) as final_query"))
+                ->mergeBindings($query);
+
+            $paginator = $wrappedQuery->paginate($perPage, ['*'], 'page', $page);
+
+            $formattedData = collect($paginator->items())->map(function ($item) use ($year) {
                 return $this->formatRow($item, $year);
             });
 
             $formattedData = $formattedData->sortByDesc('healthyPct')->values();
 
-            return response()->json([
+            return [
                 'data' => $formattedData,
                 'meta' => [
-                    'page' => 1,
-                    'perPage' => $total,
-                    'total' => $total,
-                    'totalPages' => 1,
-                    'from' => 1,
-                    'to' => $total
+                    'page' => $paginator->currentPage(),
+                    'perPage' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                    'totalPages' => $paginator->lastPage(),
+                    'from' => $paginator->firstItem(),
+                    'to' => $paginator->lastItem(),
                 ]
-            ]);
-        }
-
-        $wrappedQuery = DB::table(DB::raw("({$query->toSql()}) as final_query"))
-            ->mergeBindings($query);
-
-        $paginator = $wrappedQuery->paginate($perPage, ['*'], 'page', $page);
-
-        $formattedData = collect($paginator->items())->map(function ($item) use ($year) {
-            return $this->formatRow($item, $year);
+            ];
         });
 
-        $formattedData = $formattedData->sortByDesc('healthyPct')->values();
-
-        return response()->json([
-            'data' => $formattedData,
-            'meta' => [
-                'page' => $paginator->currentPage(),
-                'perPage' => $paginator->perPage(),
-                'total' => $paginator->total(),
-                'totalPages' => $paginator->lastPage(),
-                'from' => $paginator->firstItem(),
-                'to' => $paginator->lastItem(),
-            ]
-        ]);
+        return response()->json($responseData);
     }
 
     public function stats(Request $request)

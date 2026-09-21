@@ -43,81 +43,89 @@ class AdminReportRankingsController extends Controller
 
     public function index(Request $request)
     {
-        $query = $this->buildBaseQuery($request);
+        $qs = md5(json_encode($request->query()));
+        $cacheVersion = \App\Helpers\CacheBooster::getVersion("reports");
+        $cacheKey = "admin_report_rankings_index_{$qs}_v{$cacheVersion}";
 
-        $query->select([
-            'h.puskesmas_id as puskesmasId',
-            'f.name as puskesmasName',
-            'd.name as districtName',
-            DB::raw("COUNT(CASE WHEN h.status IN ('SUBMITTED', 'APPROVED', 'REVISION') THEN 1 END) as surveyedFamilies"),
-            DB::raw("COUNT(CASE WHEN h.status = 'APPROVED' THEN 1 END) as validatedFamilies"),
-            DB::raw("COUNT(CASE WHEN h.status IN ('SUBMITTED', 'REVISION') THEN 1 END) as backlog"),
-            DB::raw("AVG(h.iks_score) as avgIks"),
-            DB::raw("SUM(CASE WHEN h.is_iks_healthy = 1 THEN 1 ELSE 0 END) as healthyFamilies"),
-            DB::raw("SUM(CASE WHEN h.is_iks_unhealthy = 1 THEN 1 ELSE 0 END) as unhealthyFamilies"),
-            DB::raw("COUNT(DISTINCT h.surveyor_user_id) as activeSurveyors"),
-        ])->groupBy('h.puskesmas_id', 'f.name', 'd.name');
+        $responseData = \App\Helpers\CacheBooster::remember($cacheKey, 60 * 60, function () use ($request) {
+            $query = $this->buildBaseQuery($request);
 
-        $query->orderBy('avgIks', 'desc');
+            $query->select([
+                'h.puskesmas_id as puskesmasId',
+                'f.name as puskesmasName',
+                'd.name as districtName',
+                DB::raw("COUNT(CASE WHEN h.status IN ('SUBMITTED', 'APPROVED', 'REVISION') THEN 1 END) as surveyedFamilies"),
+                DB::raw("COUNT(CASE WHEN h.status = 'APPROVED' THEN 1 END) as validatedFamilies"),
+                DB::raw("COUNT(CASE WHEN h.status IN ('SUBMITTED', 'REVISION') THEN 1 END) as backlog"),
+                DB::raw("AVG(h.iks_score) as avgIks"),
+                DB::raw("SUM(CASE WHEN h.is_iks_healthy = 1 THEN 1 ELSE 0 END) as healthyFamilies"),
+                DB::raw("SUM(CASE WHEN h.is_iks_unhealthy = 1 THEN 1 ELSE 0 END) as unhealthyFamilies"),
+                DB::raw("COUNT(DISTINCT h.surveyor_user_id) as activeSurveyors"),
+            ])->groupBy('h.puskesmas_id', 'f.name', 'd.name');
 
-        $perPage = (int) $request->query('perPage', 5);
-        $page = (int) $request->query('page', 1);
+            $query->orderBy('avgIks', 'desc');
 
-        if ($perPage === 999) {
-            $records = $query->get();
-            $total = $records->count();
-            $items = $records;
-        } else {
-            $paginator = $query->paginate($perPage, ['*'], 'page', $page);
-            $total = $paginator->total();
-            $items = $paginator->items();
-        }
+            $perPage = (int) $request->query('perPage', 5);
+            $page = (int) $request->query('page', 1);
 
-        $mapped = collect($items)->map(function ($item) {
-            $totalFam = $item->surveyedFamilies ?: 1;
-            
-            $avgIks = (float) $item->avgIks;
-            if ($avgIks >= 0.8) $rankingStatus = 'excellent';
-            elseif ($avgIks >= 0.6) $rankingStatus = 'stable';
-            elseif ($avgIks >= 0.4) $rankingStatus = 'alert';
-            else $rankingStatus = 'priority';
+            if ($perPage === 999) {
+                $records = $query->get();
+                $total = $records->count();
+                $items = $records;
+            } else {
+                $paginator = $query->paginate($perPage, ['*'], 'page', $page);
+                $total = $paginator->total();
+                $items = $paginator->items();
+            }
+
+            $mapped = collect($items)->map(function ($item) {
+                $totalFam = $item->surveyedFamilies ?: 1;
+                
+                $avgIks = (float) $item->avgIks;
+                if ($avgIks >= 0.8) $rankingStatus = 'excellent';
+                elseif ($avgIks >= 0.6) $rankingStatus = 'stable';
+                elseif ($avgIks >= 0.4) $rankingStatus = 'alert';
+                else $rankingStatus = 'priority';
+
+                return [
+                    'id' => md5($item->puskesmasId),
+                    'puskesmasId' => $item->puskesmasId,
+                    'puskesmasName' => $item->puskesmasName ?: '-',
+                    'districtName' => $item->districtName ?: '-',
+                    'surveyedFamilies' => (int) $item->surveyedFamilies,
+                    'validatedFamilies' => (int) $item->validatedFamilies,
+                    'avgIks' => $avgIks,
+                    'healthyPct' => round(($item->healthyFamilies / $totalFam) * 100),
+                    'unhealthyPct' => round(($item->unhealthyFamilies / $totalFam) * 100),
+                    'backlog' => (int) $item->backlog,
+                    'activeSurveyors' => (int) $item->activeSurveyors,
+                    'rankingStatus' => $rankingStatus,
+                ];
+            });
+
+            if ($rankingStatusFilter = $request->query('rankingStatus')) {
+                $mapped = $mapped->filter(function ($item) use ($rankingStatusFilter) {
+                    return $item['rankingStatus'] === $rankingStatusFilter;
+                })->values();
+                $total = $mapped->count();
+            }
+
+            $totalPages = $perPage > 0 ? ceil($total / $perPage) : 1;
 
             return [
-                'id' => md5($item->puskesmasId),
-                'puskesmasId' => $item->puskesmasId,
-                'puskesmasName' => $item->puskesmasName ?: '-',
-                'districtName' => $item->districtName ?: '-',
-                'surveyedFamilies' => (int) $item->surveyedFamilies,
-                'validatedFamilies' => (int) $item->validatedFamilies,
-                'avgIks' => $avgIks,
-                'healthyPct' => round(($item->healthyFamilies / $totalFam) * 100),
-                'unhealthyPct' => round(($item->unhealthyFamilies / $totalFam) * 100),
-                'backlog' => (int) $item->backlog,
-                'activeSurveyors' => (int) $item->activeSurveyors,
-                'rankingStatus' => $rankingStatus,
+                'data' => $mapped,
+                'meta' => [
+                    'page' => $page,
+                    'perPage' => $perPage,
+                    'total' => $total,
+                    'totalPages' => max(1, $totalPages),
+                    'from' => $total === 0 ? null : ($page - 1) * $perPage + 1,
+                    'to' => $total === 0 ? null : min($page * $perPage, $total)
+                ]
             ];
         });
 
-        if ($rankingStatusFilter = $request->query('rankingStatus')) {
-            $mapped = $mapped->filter(function ($item) use ($rankingStatusFilter) {
-                return $item['rankingStatus'] === $rankingStatusFilter;
-            })->values();
-            $total = $mapped->count();
-        }
-
-        $totalPages = $perPage > 0 ? ceil($total / $perPage) : 1;
-
-        return response()->json([
-            'data' => $mapped,
-            'meta' => [
-                'page' => $page,
-                'perPage' => $perPage,
-                'total' => $total,
-                'totalPages' => max(1, $totalPages),
-                'from' => $total === 0 ? null : ($page - 1) * $perPage + 1,
-                'to' => $total === 0 ? null : min($page * $perPage, $total)
-            ]
-        ]);
+        return response()->json($responseData);
     }
 
     public function stats(Request $request)

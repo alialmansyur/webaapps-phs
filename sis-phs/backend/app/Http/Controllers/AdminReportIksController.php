@@ -86,75 +86,85 @@ class AdminReportIksController extends Controller
 
     public function index(Request $request)
     {
-        $query = $this->buildLevelQuery($request);
+        $user = $request->user();
+        // Generate a unique cache key based on request parameters and user id (to prevent data leak between users)
+        $qs = md5(json_encode($request->query()));
+        $cacheVersion = \App\Helpers\CacheBooster::getVersion("reports");
+        $cacheKey = "admin_report_iks_index_{$user?->id}_{$qs}_v{$cacheVersion}";
 
-        $query->orderBy('avgIks', 'desc');
+        $responseData = \App\Helpers\CacheBooster::remember($cacheKey, 60 * 60, function () use ($request) {
+            $query = $this->buildLevelQuery($request);
 
-        $perPage = (int) $request->query('perPage', 5);
-        $page = (int) $request->query('page', 1);
+            $query->orderBy('avgIks', 'desc');
 
-        if ($perPage === 999) {
-            $records = $query->get();
-            $total = $records->count();
-            $items = $records;
-        } else {
-            $paginator = $query->paginate($perPage, ['*'], 'page', $page);
-            $total = $paginator->total();
-            $items = $paginator->items();
-        }
+            $perPage = (int) $request->query('perPage', 5);
+            $page = (int) $request->query('page', 1);
 
-        $mapped = collect($items)->map(function ($item) {
-            $totalFam = $item->surveyedFamilies ?: 1;
-            
-            $avgIks = (float) $item->avgIks;
-            if ($item->surveyedFamilies == 0) $rankingStatus = 'empty';
-            elseif ($avgIks >= 0.8) $rankingStatus = 'excellent';
-            elseif ($avgIks >= 0.6) $rankingStatus = 'stable';
-            elseif ($avgIks >= 0.4) $rankingStatus = 'alert';
-            else $rankingStatus = 'priority';
+            if ($perPage === 999) {
+                $records = $query->get();
+                $total = $records->count();
+                $items = $records;
+            } else {
+                $paginator = $query->paginate($perPage, ['*'], 'page', $page);
+                $total = $paginator->total();
+                $items = $paginator->items();
+            }
+
+            $mapped = collect($items)->map(function ($item) {
+                $totalFam = $item->surveyedFamilies ?: 1;
+                
+                $avgIks = (float) $item->avgIks;
+                if ($item->surveyedFamilies == 0) $rankingStatus = 'empty';
+                elseif ($avgIks >= 0.8) $rankingStatus = 'excellent';
+                elseif ($avgIks >= 0.6) $rankingStatus = 'stable';
+                elseif ($avgIks >= 0.4) $rankingStatus = 'alert';
+                else $rankingStatus = 'priority';
+
+                return [
+                    'id' => md5($item->districtId . $item->puskesmasId . $item->villageId),
+                    'year' => $item->year ?: date('Y'),
+                    'period' => $item->period ?: 'semester-1',
+                    'level' => 'village',
+                    'districtId' => $item->districtId,
+                    'districtName' => $item->districtName ?: '-',
+                    'puskesmasId' => $item->puskesmasId,
+                    'puskesmasName' => $item->puskesmasName ?: '-',
+                    'villageId' => $item->villageId,
+                    'villageName' => $item->villageName ?: '-',
+                    'surveyedFamilies' => (int) $item->surveyedFamilies,
+                    'validatedFamilies' => (int) $item->validatedFamilies,
+                    'avgIks' => $avgIks,
+                    'healthyFamilyPct' => round(($item->healthyFamilies / $totalFam) * 100),
+                    'unhealthyPct' => round(($item->unhealthyFamilies / $totalFam) * 100),
+                    'backlog' => (int) $item->backlog,
+                    'rankingStatus' => $rankingStatus,
+                ];
+            });
+
+            // Apply rankingStatus filter after mapping (since rankingStatus is derived)
+            if ($rankingStatusFilter = $request->query('rankingStatus')) {
+                $mapped = $mapped->filter(function ($item) use ($rankingStatusFilter) {
+                    return $item['rankingStatus'] === $rankingStatusFilter;
+                })->values();
+                $total = $mapped->count();
+            }
+
+            $totalPages = $perPage > 0 ? ceil($total / $perPage) : 1;
 
             return [
-                'id' => md5($item->districtId . $item->puskesmasId . $item->villageId),
-                'year' => $item->year ?: date('Y'),
-                'period' => $item->period ?: 'semester-1',
-                'level' => 'village',
-                'districtId' => $item->districtId,
-                'districtName' => $item->districtName ?: '-',
-                'puskesmasId' => $item->puskesmasId,
-                'puskesmasName' => $item->puskesmasName ?: '-',
-                'villageId' => $item->villageId,
-                'villageName' => $item->villageName ?: '-',
-                'surveyedFamilies' => (int) $item->surveyedFamilies,
-                'validatedFamilies' => (int) $item->validatedFamilies,
-                'avgIks' => $avgIks,
-                'healthyFamilyPct' => round(($item->healthyFamilies / $totalFam) * 100),
-                'unhealthyPct' => round(($item->unhealthyFamilies / $totalFam) * 100),
-                'backlog' => (int) $item->backlog,
-                'rankingStatus' => $rankingStatus,
+                'data' => $mapped,
+                'meta' => [
+                    'page' => $page,
+                    'perPage' => $perPage,
+                    'total' => $total,
+                    'totalPages' => max(1, $totalPages),
+                    'from' => $total === 0 ? null : ($page - 1) * $perPage + 1,
+                    'to' => $total === 0 ? null : min($page * $perPage, $total)
+                ]
             ];
         });
 
-        // Apply rankingStatus filter after mapping (since rankingStatus is derived)
-        if ($rankingStatusFilter = $request->query('rankingStatus')) {
-            $mapped = $mapped->filter(function ($item) use ($rankingStatusFilter) {
-                return $item['rankingStatus'] === $rankingStatusFilter;
-            })->values();
-            $total = $mapped->count();
-        }
-
-        $totalPages = $perPage > 0 ? ceil($total / $perPage) : 1;
-
-        return response()->json([
-            'data' => $mapped,
-            'meta' => [
-                'page' => $page,
-                'perPage' => $perPage,
-                'total' => $total,
-                'totalPages' => max(1, $totalPages),
-                'from' => $total === 0 ? null : ($page - 1) * $perPage + 1,
-                'to' => $total === 0 ? null : min($page * $perPage, $total)
-            ]
-        ]);
+        return response()->json($responseData);
     }
 
     public function stats(Request $request)
