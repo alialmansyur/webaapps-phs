@@ -1,9 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mapMeResponse, saveAuthSession } from '../../services/auth';
 import { getRoleHomePath } from '../navigation/config';
 import { apiRequest, ApiError } from '../../services/api';
 import { User, Lock, Activity, ChevronRight, Eye, EyeOff } from 'lucide-react';
+
+const BENEFITS = [
+  "Pantau Data Kesehatan secara Real-time",
+  "Akses Laporan Terintegrasi",
+  "Kelola Data dengan Cepat dan Akurat",
+  "Mendukung Keputusan Berbasis Data",
+  "Sistem Pencatatan yang Aman dan Terpercaya"
+];
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -11,7 +19,20 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentBenefitIndex, setCurrentBenefitIndex] = useState(0);
+  const [fade, setFade] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFade(false);
+      setTimeout(() => {
+        setCurrentBenefitIndex((prev) => (prev + 1) % BENEFITS.length);
+        setFade(true);
+      }, 500);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -52,11 +73,42 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-8">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center justify-center">
-        <section className="w-full max-w-md rounded-[2rem] bg-white p-8 sm:p-10">
-          <div className="mb-8 text-center">
-            <div className="mb-5 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-500 text-white">
+    <div className="flex min-h-screen bg-white">
+      {/* Left Side: Background & Floating Text */}
+      <div className="relative hidden w-1/2 items-center justify-center lg:flex bg-slate-900">
+        <div className="absolute inset-0">
+          <img
+            src="/backdrop.png"
+            alt="SIS-PHS Background"
+            className="h-full w-full object-cover opacity-50"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
+        </div>
+        <div className="relative z-10 flex flex-col items-center px-12 text-center">
+          <div className="mb-8 inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-teal-500/90 text-white backdrop-blur-sm shadow-lg">
+            <Activity size={40} />
+          </div>
+          <h2 className="mb-6 text-4xl font-extrabold tracking-tight text-white drop-shadow-md">
+            Sistem Informasi <br/>
+            <span className="text-teal-400">Kesehatan Digital</span>
+          </h2>
+          <div className="h-20 flex items-center justify-center">
+            <p
+              className={`text-xl font-medium text-slate-200 transition-opacity duration-500 ease-in-out ${
+                fade ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              {BENEFITS[currentBenefitIndex]}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side: Login Form */}
+      <div className="flex w-full items-center justify-center lg:w-1/2 p-8 sm:p-12 lg:p-16 bg-slate-50 lg:bg-white">
+        <div className="w-full max-w-md rounded-[2rem] bg-white p-8 sm:p-10 lg:p-0 lg:rounded-none lg:bg-transparent shadow-xl lg:shadow-none">
+          <div className="mb-8 text-center lg:text-left">
+            <div className="lg:hidden mb-5 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-500 text-white shadow-md">
               <Activity size={32} />
             </div>
             <h1 className="mb-2 text-3xl font-black tracking-tight text-slate-800">Masuk ke SIS-PHS</h1>
@@ -78,7 +130,7 @@ export default function LoginPage() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Masukkan username"
-                    className="w-full rounded-2xl bg-slate-50 py-4 pl-12 pr-4 font-medium text-slate-900 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full rounded-2xl bg-slate-50 lg:bg-slate-100 py-4 pl-12 pr-4 font-medium text-slate-900 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500 border border-slate-200 lg:border-none focus:border-teal-500"
                     required
                   />
                 </div>
@@ -95,7 +147,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Masukkan password"
-                    className="w-full rounded-2xl bg-slate-50 py-4 pl-12 pr-12 font-medium text-slate-900 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full rounded-2xl bg-slate-50 lg:bg-slate-100 py-4 pl-12 pr-12 font-medium text-slate-900 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500 border border-slate-200 lg:border-none focus:border-teal-500"
                     required
                   />
                   <button
@@ -111,7 +163,7 @@ export default function LoginPage() {
             </div>
 
             {error ? (
-              <div className="rounded-2xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">
+              <div className="rounded-2xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600 border border-rose-100">
                 {error}
               </div>
             ) : null}
@@ -119,7 +171,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`mt-6 flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-4 text-white transition-colors ${
+              className={`mt-6 flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-4 text-white transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 ${
                 isSubmitting ? 'cursor-wait bg-teal-500/80' : 'bg-teal-500 hover:bg-teal-600'
               }`}
             >
@@ -136,7 +188,7 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-        </section>
+        </div>
       </div>
     </div>
   );
