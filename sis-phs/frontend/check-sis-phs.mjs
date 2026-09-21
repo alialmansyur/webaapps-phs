@@ -1,0 +1,17 @@
+const { chromium } = await import('playwright');
+const browser = await chromium.launch({ headless: true });
+const page = await browser.newPage();
+page.on('console', msg => console.log('CONSOLE', msg.type(), msg.text()));
+page.on('pageerror', err => console.log('PAGEERROR', err.stack || err.message));
+await page.goto('http://127.0.0.1:4173/login', { waitUntil: 'networkidle', timeout: 30000 });
+console.log('URL1', page.url());
+await page.fill('input[placeholder="Username dummy"]', 'kader');
+await page.fill('input[placeholder="Password dummy"]', 'kader123');
+await page.click('button[type="submit"]');
+await page.waitForLoadState('networkidle');
+console.log('URL2', page.url());
+await page.click('text=Mulai Survei Baru');
+await page.waitForLoadState('networkidle');
+console.log('URL3', page.url());
+await page.screenshot({ path: 'check-sis-phs.png', fullPage: true });
+await browser.close();

@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+  font-family: Inter, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(20, 184, 166, 0.10), transparent 28%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.08), transparent 24%),
+    #f8fafc;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: #0f172a;
+  background: transparent;
+}
+
+[class*="shadow"] {
+  box-shadow: none !important;
+}
+
+[class*="drop-shadow"] {
+  filter: none !important;
+}
+
+.dark [class*="shadow"] {
+  box-shadow: none !important;
+}
+
+.dark:root {
+  color-scheme: dark;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.custom-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.custom-scroll {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.app-panel-shell,
+.master-card-shell {
+  border-radius: 1.25rem !important;
+  border: 1px solid rgb(226 232 240) !important;
+  background: white !important;
+}
+
+.app-panel-header {
+  border-top-left-radius: 1.25rem !important;
+  border-top-right-radius: 1.25rem !important;
+}
+
+.app-panel-body {
+  border-bottom-left-radius: 1.25rem !important;
+  border-bottom-right-radius: 1.25rem !important;
+}
+
+.app-panel-icon {
+  border-radius: 1rem !important;
+}
+
+.dark .app-panel-shell,
+.dark .master-card-shell {
+  border-color: rgb(51 65 85) !important;
+  background: rgb(30 41 59) !important;
+}
+
+:is(div, section, article, aside)[class*="rounded-[2rem]"] {
+  border-radius: 1.25rem !important;
+}
+
+:is(div, section, article, aside)[class*="rounded-2xl"][class*="border"] {
+  border-radius: 1.25rem !important;
+}
+
+:is(div, section, article, aside)[class*="rounded-[2rem]"][class*="border"] {
+  border-radius: 1.25rem !important;
+  border-color: rgb(226 232 240) !important;
+}
+
+.dark :is(div, section, article, aside)[class*="rounded-[2rem]"][class*="border"] {
+  border-color: rgb(51 65 85) !important;
+}
+
+:is(div, section, article, aside)[class*="rounded-2xl"][class*="border"][class*="bg-white"] {
+  border-color: rgb(226 232 240) !important;
+}
+
+.dark :is(div, section, article, aside)[class*="rounded-2xl"][class*="border"][class*="dark:bg-slate-800"] {
+  border-color: rgb(51 65 85) !important;
+}
+
+.master-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 1rem;
+  background: rgb(13 148 136);
+  color: white;
+}
+
+.master-primary-btn:hover {
+  background: rgb(15 118 110);
+}
+
+.master-primary-icon {
+  border-radius: 1rem;
+  background: rgb(204 251 241);
+  color: rgb(15 118 110);
+}
+
+.dark .master-primary-icon {
+  background: rgb(20 184 166 / 0.15);
+  color: rgb(94 234 212);
+}

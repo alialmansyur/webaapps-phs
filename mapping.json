@@ -1,0 +1,292 @@
+[
+  {
+    "kecamatan": "KATAPANG",
+    "puskesmas": "SANGKANHURIP",
+    "desa": "8"
+  },
+  {
+    "kecamatan": "PANGALENGAN",
+    "puskesmas": "SUKAMANAH",
+    "desa": "24"
+  },
+  {
+    "kecamatan": "KUTAWARINGIN",
+    "puskesmas": "KOPO",
+    "desa": "28"
+  },
+  {
+    "kecamatan": "PANGALENGAN",
+    "puskesmas": "PANGALENGAN",
+    "desa": "34"
+  },
+  {
+    "kecamatan": "KERTASARI",
+    "puskesmas": "KERTASARI",
+    "desa": "38"
+  },
+  {
+    "kecamatan": "PASEH",
+    "puskesmas": "CIPEDES",
+    "desa": "43"
+  },
+  {
+    "kecamatan": "DAYEUHKOLOT",
+    "puskesmas": "DAYEUHKOLOT",
+    "desa": "49"
+  },
+  {
+    "kecamatan": "SOLOKANJERUK",
+    "puskesmas": "SOLOKANJERUK",
+    "desa": "52"
+  },
+  {
+    "kecamatan": "CIWIDEY",
+    "puskesmas": "RAWABOGO",
+    "desa": "56"
+  },
+  {
+    "kecamatan": "MARGAASIH",
+    "puskesmas": "RAHAYU",
+    "desa": "60"
+  },
+  {
+    "kecamatan": "SOLOKANJERUK",
+    "puskesmas": "PADAMUKTI",
+    "desa": "63"
+  },
+  {
+    "kecamatan": "IBUN",
+    "puskesmas": "SUDI",
+    "desa": "66"
+  },
+  {
+    "kecamatan": "RANCABALI",
+    "puskesmas": "RANCABALI",
+    "desa": "71"
+  },
+  {
+    "kecamatan": "MARGAASIH",
+    "puskesmas": "MARGAASIH",
+    "desa": "76"
+  },
+  {
+    "kecamatan": "BOJONGSOANG",
+    "puskesmas": "BOJONGSOANG",
+    "desa": "79"
+  },
+  {
+    "kecamatan": "SOREANG",
+    "puskesmas": "SOREANG",
+    "desa": "85"
+  },
+  {
+    "kecamatan": "PASIRJAMBU",
+    "puskesmas": "SUGIHMUKTI",
+    "desa": "91"
+  },
+  {
+    "kecamatan": "MAJALAYA",
+    "puskesmas": "CIKARO",
+    "desa": "94"
+  },
+  {
+    "kecamatan": "CILEUNYI",
+    "puskesmas": "CINUNUK",
+    "desa": "97"
+  },
+  {
+    "kecamatan": "PAMEUNGPEUK",
+    "puskesmas": "PAMEUNGPEUK",
+    "desa": "99"
+  },
+  {
+    "kecamatan": "BANJARAN KOTA",
+    "puskesmas": "BANJARAN KOTA",
+    "desa": "105"
+  },
+  {
+    "kecamatan": "CILENGKRANG",
+    "puskesmas": "CILENGKRANG",
+    "desa": "110"
+  },
+  {
+    "kecamatan": "CIMENYAN",
+    "puskesmas": "CIMENYAN",
+    "desa": "116"
+  },
+  {
+    "kecamatan": "PACET",
+    "puskesmas": "PANCA",
+    "desa": "121"
+  },
+  {
+    "kecamatan": "CIWIDEY",
+    "puskesmas": "CIWIDEY",
+    "desa": "127"
+  },
+  {
+    "kecamatan": "RANCAEKEK",
+    "puskesmas": "LINGGAR",
+    "desa": "130"
+  },
+  {
+    "kecamatan": "CIMAUNG",
+    "puskesmas": "CIMAUNG",
+    "desa": "134"
+  },
+  {
+    "kecamatan": "RANCAEKEK",
+    "puskesmas": "RANCAEKEK DTP",
+    "desa": "138"
+  },
+  {
+    "kecamatan": "PANGALENGAN",
+    "puskesmas": "WARNASARI",
+    "desa": "143"
+  },
+  {
+    "kecamatan": "CIMAUNG",
+    "puskesmas": "CIKALONG",
+    "desa": "148"
+  },
+  {
+    "kecamatan": "ARJASARI",
+    "puskesmas": "ARJASARI",
+    "desa": "154"
+  },
+  {
+    "kecamatan": "KATAPANG",
+    "puskesmas": "KATAPANG",
+    "desa": "159"
+  },
+  {
+    "kecamatan": "DAYEUHKOLOT",
+    "puskesmas": "CANGKUANG",
+    "desa": "162"
+  },
+  {
+    "kecamatan": "CIKANCUNG",
+    "puskesmas": "CIKANCUNG",
+    "desa": "165"
+  },
+  {
+    "kecamatan": "KUTAWARINGIN",
+    "puskesmas": "KUTAWARINGIN",
+    "desa": "170"
+  },
+  {
+    "kecamatan": "CIPARAY",
+    "puskesmas": "CIPARAY DTP",
+    "desa": "175"
+  },
+  {
+    "kecamatan": "CILEUNYI",
+    "puskesmas": "CIBIRU HILIR",
+    "desa": "180"
+  },
+  {
+    "kecamatan": "ARJASARI",
+    "puskesmas": "NAMBO",
+    "desa": "182"
+  },
+  {
+    "kecamatan": "IBUN",
+    "puskesmas": "IBUN",
+    "desa": "188"
+  },
+  {
+    "kecamatan": "MARGAHAYU",
+    "puskesmas": "MARGAHAYU SELATAN",
+    "desa": "195"
+  },
+  {
+    "kecamatan": "MAJALAYA",
+    "puskesmas": "WANGISAGARA",
+    "desa": "197"
+  },
+  {
+    "kecamatan": "RANCAEKEK",
+    "puskesmas": "NANJUNGMEKAR",
+    "desa": "200"
+  },
+  {
+    "kecamatan": "MAJALAYA",
+    "puskesmas": "MAJALAYA",
+    "desa": "205"
+  },
+  {
+    "kecamatan": "CILEUNYI",
+    "puskesmas": "CILEUNYI",
+    "desa": "210"
+  },
+  {
+    "kecamatan": "NAGRAK",
+    "puskesmas": "NAGRAK",
+    "desa": "212"
+  },
+  {
+    "kecamatan": "BANJARAN",
+    "puskesmas": "KIANGROKE",
+    "desa": "219"
+  },
+  {
+    "kecamatan": "SUKAJADI",
+    "puskesmas": "SUKAJADI",
+    "desa": "225"
+  },
+  {
+    "kecamatan": "CIPARAY",
+    "puskesmas": "PAKUTANDANG",
+    "desa": "229"
+  },
+  {
+    "kecamatan": "NAGREG",
+    "puskesmas": "NAGREG",
+    "desa": "234"
+  },
+  {
+    "kecamatan": "CIMENYAN",
+    "puskesmas": "CIBEUNYING",
+    "desa": "242"
+  },
+  {
+    "kecamatan": "BALEENDAH",
+    "puskesmas": "JELEKONG",
+    "desa": "246"
+  },
+  {
+    "kecamatan": "CICALENGKA",
+    "puskesmas": "CICALENGKA",
+    "desa": "249"
+  },
+  {
+    "kecamatan": "CICALENGKA",
+    "puskesmas": "SAWAH LEGA",
+    "desa": "255"
+  },
+  {
+    "kecamatan": "BALEENDAH",
+    "puskesmas": "RANCA MALAKA  ENDAH",
+    "desa": "261"
+  },
+  {
+    "kecamatan": "CIPARAY",
+    "puskesmas": "SUMBERSARI",
+    "desa": "264"
+  },
+  {
+    "kecamatan": "PASIR JAMBU",
+    "puskesmas": "PASIR JAMBU",
+    "desa": "268"
+  },
+  {
+    "kecamatan": "CIKANCUNG",
+    "puskesmas": "CILULUK",
+    "desa": "275"
+  },
+  {
+    "kecamatan": "BALEENDAH",
+    "puskesmas": "BALEENDAH",
+    "desa": "279"
+  }
+]
